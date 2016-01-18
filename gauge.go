@@ -66,6 +66,9 @@ func (g *Gauge) Finished() {
 	if g.max > g.cur {
 		g.cur = g.max
 	}
+	if g.max == 0 {
+		g.max = g.cur
+	}
 	g.ClearLine()
 	g.write()
 	fmt.Fprintf(g.writer, "\n")

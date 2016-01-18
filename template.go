@@ -18,7 +18,7 @@ func newDefaultTemplate() *DefaultTemplate {
 		template: template.New("gauge"),
 	}
 	tmpl.SetTemplateLine(
-		`{{if .HasMax}}{{.GetPercentage|printf "%3d"}}% {{end}}{{.GetBar}} {{.Status}} [{{.GetTime|printf "%.4f"}}sec|{{.GetMemory|printf "%.4f"}}MB] {{ .Extra }}`,
+		`{{.Status}} {{.GetBar}} {{if .HasMax}}{{.GetPercentage|printf "%3d"}}% {{end}}[{{.GetTime|printf "%.4f"}}sec|{{.GetMemory|printf "%.4f"}}MB] {{ .Extra }}`,
 	)
 	return tmpl
 }
