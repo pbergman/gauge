@@ -9,12 +9,12 @@ type TemplateInterface interface {
 	Parse(c *Context) ([]byte, error)
 }
 
-type defaultTemplate struct {
+type DefaultTemplate struct {
 	template *template.Template
 }
 
-func newDefaultTemplate() *defaultTemplate {
-	tmpl :=  &defaultTemplate{
+func newDefaultTemplate() *DefaultTemplate {
+	tmpl :=  &DefaultTemplate{
 		template: template.New("gauge"),
 	}
 	tmpl.SetTemplateLine(
@@ -23,11 +23,11 @@ func newDefaultTemplate() *defaultTemplate {
 	return tmpl
 }
 
-func (t *defaultTemplate) SetTemplateLine(line string) {
+func (t *DefaultTemplate) SetTemplateLine(line string) {
 	t.template = template.Must(t.template.Parse(line))
 }
 
-func (t *defaultTemplate) Parse(c *Context) ([]byte, error) {
+func (t *DefaultTemplate) Parse(c *Context) ([]byte, error) {
 	buff := new(bytes.Buffer)
 	err := t.template.Execute(buff, c)
 	if err != nil {

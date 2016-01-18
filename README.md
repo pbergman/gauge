@@ -64,3 +64,11 @@ func main(){
 .....
 	
 ```
+
+or overwrite just the template line:
+
+```
+	gauge := gauge.NewGauge(5, os.Stdout)
+	gauge.GetTemplate().(*gauge.DefaultTemplate).SetTemplateLine(....
+	gauge.Start()
+```
