@@ -7,6 +7,7 @@ import (
 
 type TemplateInterface interface {
 	Parse(c *Context) ([]byte, error)
+	AddFuncMap(funcs template.FuncMap)
 }
 
 type DefaultTemplate struct {
@@ -15,16 +16,19 @@ type DefaultTemplate struct {
 
 func newDefaultTemplate() *DefaultTemplate {
 	tmpl :=  &DefaultTemplate{
-		template: template.New("gauge"),
+		template: template.Must(template.New("gauge").Parse(
+			` {{.Status}} {{.GetBar}}{{if .HasMax}} {{.GetPercentage|printf "%3d"}}%{{end}} [{{.GetTime.Seconds|printf "%05.2f"}}s{{if .HasMax}}/{{.GetEstimate|printf "%05.2f"}}s{{end}}][{{.GetMemory|printf "%05.2f"}}MB]`,
+		)),
 	}
-	tmpl.SetTemplateLine(
-		`{{.Status}} {{.GetBar}} {{if .HasMax}}{{.GetPercentage|printf "%3d"}}% {{end}}[{{.GetTime|printf "%.4f"}}sec|{{.GetMemory|printf "%.4f"}}MB] {{ .Extra }}`,
-	)
 	return tmpl
 }
 
-func (t *DefaultTemplate) SetTemplateLine(line string) {
+func (t *DefaultTemplate) SetFormatLine(line string) {
 	t.template = template.Must(t.template.Parse(line))
+}
+
+func (t *DefaultTemplate) AddFuncMap(funcs template.FuncMap) {
+	t.template.Funcs(funcs)
 }
 
 func (t *DefaultTemplate) Parse(c *Context) ([]byte, error) {

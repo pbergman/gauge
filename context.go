@@ -4,8 +4,8 @@ import (
 	"time"
 	"fmt"
 	"strings"
-	"strconv"
 	"github.com/pbergman/gauge/debug"
+	"strconv"
 )
 
 type Context struct {
@@ -18,12 +18,16 @@ func (c *Context) HasMax() bool {
 	return c.gauge.max > 0
 }
 
-func (c *Context) GetTime() float64 {
-	return time.Now().Sub(c.gauge.start).Seconds()
+func (c *Context) GetTime() time.Duration {
+	return time.Now().Sub(c.gauge.start)
 }
 
 func (c *Context) GetPercentage() int {
 	return int(float64(c.gauge.cur) * (100 / float64(c.gauge.max)))
+}
+
+func (c *Context) GetEstimate() float64 {
+	return (c.GetTime().Seconds()/float64(c.gauge.cur)) * float64(c.gauge.max)
 }
 
 func (c *Context) GetMemory() float64 {
@@ -36,7 +40,7 @@ func (c *Context) GetMemory() float64 {
 
 func (c *Context) Status() string {
 	if c.gauge.max <= 0 {
-		return fmt.Sprintf("%d", c.gauge.cur)
+		return fmt.Sprintf("%4d", c.gauge.cur)
 	} else {
 		str_max := strconv.Itoa(c.gauge.max)
 		str_now :=  strconv.Itoa(c.gauge.cur)
