@@ -17,7 +17,7 @@ type DefaultTemplate struct {
 func newDefaultTemplate() *DefaultTemplate {
 	tmpl :=  &DefaultTemplate{
 		template: template.Must(template.New("gauge").Parse(
-			` {{.Status}} {{.GetBar}}{{if .HasMax}} {{.GetPercentage|printf "%3d"}}%{{end}} [{{.GetTime.Seconds|printf "%05.2f"}}s{{if .HasMax}}/{{.GetEstimate|printf "%05.2f"}}s{{end}}][{{.GetMemory|printf "%05.2f"}}MB]`,
+			` {{.Status}} {{.GetBar}}{{if .HasMax}} {{.GetPercentage|printf "%3d"}}%{{end}} [{{.GetTime.Seconds|printf "%05.2f"}}s{{if .HasMax}}/{{.GetEstimate|printf "%05.2f"}}s{{end}}][{{.GetMemory|printf "%05.2f"}}MB] {{ .Extra }}`,
 		)),
 	}
 	return tmpl
