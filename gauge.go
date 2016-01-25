@@ -4,6 +4,7 @@ import (
 	"io"
 	"time"
 	"fmt"
+	"sync"
 )
 
 type Gauge struct {
@@ -13,6 +14,7 @@ type Gauge struct {
 	start 	 time.Time
 	template TemplateInterface
 	context  *Context
+	lock     sync.Mutex
 }
 
 // NewGauge creates a new progress gauge, if max
@@ -28,7 +30,7 @@ func NewGauge(max int, writer io.Writer) *Gauge {
 func (g *Gauge) Start() {
 	g.start = time.Now()
 	g.cur = 0
-	g.write()
+	g.WriteLine()
 }
 
 func (g *Gauge) SetTemplate(t TemplateInterface){
@@ -49,8 +51,22 @@ func (g *Gauge) GetContext() *Context {
 	return g.context
 }
 
+func (g *Gauge) WriteLine() {
+	g.lock.Lock()
+	buff, err := g.GetTemplate().Parse(g.GetContext())
+	if err != nil {
+		panic(err)
+	}
+	g.write(string(buff))
+	g.GetContext().Extra = ""
+	g.lock.Unlock()
+}
+
+
 func (g *Gauge) ClearLine() {
-	fmt.Fprint(g.writer, "\033[2K\r")
+	g.lock.Lock()
+	g.write("\033[2K\r")
+	g.lock.Unlock()
 }
 
 func (g *Gauge) Advance(step int) {
@@ -59,30 +75,22 @@ func (g *Gauge) Advance(step int) {
 	}
 	g.cur += step
 	g.ClearLine()
-	g.write()
+	g.WriteLine()
 }
 
 func (g *Gauge) Finished() {
 	if g.max > g.cur {
 		g.cur = g.max
 	}
-
 	g.ClearLine()
-	g.write()
-
+	g.WriteLine()
 	if g.context.usage != nil {
 		g.context.usage.Close()
 	}
-
-	fmt.Fprintf(g.writer, "\n")
+	g.write("\n")
 }
 
-func (g *Gauge) write() {
-	buff, err := g.GetTemplate().Parse(g.GetContext())
-	if err != nil {
-		panic(err)
-	}
-	fmt.Fprint(g.writer, string(buff))
-	g.GetContext().Extra = ""
+func (g *Gauge) write(line string) {
+	fmt.Fprint(g.writer, line)
 }
 
